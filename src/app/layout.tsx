@@ -1,8 +1,8 @@
-
-import type {Metadata} from 'next';
-import './globals.css';
+import type { Metadata } from 'next'
+import './globals.css'
 import { Toaster } from "@/components/ui/toaster"
-import { AuthProvider } from '@/hooks/use-auth';
+import { AuthProvider } from '@/hooks/use-auth'
+import Script from 'next/script'
 
 export const metadata: Metadata = {
   title: 'StudyCat: Your interactive AI Guide to Mastering Any Subject',
@@ -10,27 +10,40 @@ export const metadata: Metadata = {
   icons: {
     icon: '/cat.png',
   },
-};
+}
 
 export default function RootLayout({
   children,
 }: Readonly<{
-  children: React.ReactNode;
+  children: React.ReactNode
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet" />
-        <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet" />
+        <link
+          href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap"
+          rel="stylesheet"
+        />
+        <link
+          href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&display=swap"
+          rel="stylesheet"
+        />
       </head>
       <body className="font-body antialiased">
+        {/* ✅ Add Umami tracking script */}
+        <Script
+          src="https://cloud.umami.is/script.js"
+          data-website-id="44c3a21a-d2ed-40c1-9f3b-15ba275cb562"
+          strategy="afterInteractive"
+        />
+        
         <AuthProvider>
           {children}
           <Toaster />
         </AuthProvider>
       </body>
     </html>
-  );
+  )
 }
