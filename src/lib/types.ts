@@ -29,6 +29,7 @@ export interface Course {
   depth: 15 | 30;
   outline: string;
   steps: Step[];
+  notes: string;
   createdAt: string;
 }
 

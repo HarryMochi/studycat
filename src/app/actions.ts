@@ -3,6 +3,7 @@
 
 import { generateFullCourse, type GenerateFullCourseInput, type GenerateFullCourseOutput } from '@/ai/flows/generate-full-course';
 import { askStepQuestion, type AskStepQuestionInput, type AskStepQuestionOutput } from '@/ai/flows/ask-step-question';
+import { assistWithNotes, type AssistWithNotesInput, type AssistWithNotesOutput } from '@/ai/flows/assist-with-notes';
 
 export async function generateCourseAction(input: GenerateFullCourseInput): Promise<GenerateFullCourseOutput> {
     try {
@@ -29,5 +30,17 @@ export async function askQuestionAction(input: AskStepQuestionInput): Promise<As
             throw new Error(error.message);
         }
         throw new Error("An unknown error occurred while getting the answer.");
+    }
+}
+
+export async function assistWithNotesAction(input: AssistWithNotesInput): Promise<AssistWithNotesOutput> {
+    try {
+        return await assistWithNotes(input);
+    } catch (error) {
+        console.error("Error in assistWithNotesAction:", error);
+        if (error instanceof Error) {
+            throw new Error(error.message);
+        }
+        throw new Error("An unknown error occurred while assisting with notes.");
     }
 }

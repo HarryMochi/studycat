@@ -5,7 +5,7 @@ import { useState, useEffect, useMemo, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import type { Course, Step } from '@/lib/types';
 import { getCoursesForUser, addCourse, updateCourse, deleteCourse as deleteCourseFromDb } from '@/lib/firestore';
-import { generateCourseAction, askQuestionAction } from '../actions';
+import { generateCourseAction, askQuestionAction, assistWithNotesAction } from '../actions';
 import { useToast } from "@/hooks/use-toast";
 import HistorySidebar from '@/components/history-sidebar';
 import TopicSelection from '@/components/topic-selection';
@@ -14,6 +14,7 @@ import { useAuth } from '@/hooks/use-auth';
 import { Loader2 } from 'lucide-react';
 import MainLayout from '@/components/main-layout';
 import type { AskStepQuestionOutput } from '@/ai/flows/ask-step-question';
+import type { AssistWithNotesOutput } from '@/ai/flows/assist-with-notes';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import MobileHeader from '@/components/mobile-header';
 
@@ -94,6 +95,7 @@ export default function LearnPage() {
         depth,
         outline: JSON.stringify(result.course.map(s => ({ step: s.step, title: s.title, description: s.description })), null, 2),
         steps: steps,
+        notes: "",
         createdAt: new Date().toISOString(),
         userId: user.uid,
       };
@@ -136,6 +138,24 @@ export default function LearnPage() {
         setCourses(prevCourses => prevCourses.map(c => c.id === courseId ? courseToUpdate : c));
     }
   };
+
+  const handleUpdateNotes = async (courseId: string, newNotes: string) => {
+    const courseToUpdate = courses.find(c => c.id === courseId);
+    if (!courseToUpdate) return;
+    
+    const updatedCourse = { ...courseToUpdate, notes: newNotes };
+    
+    setCourses(prevCourses => prevCourses.map(c => c.id === courseId ? updatedCourse : c));
+
+    try {
+        await updateCourse(courseId, { notes: newNotes });
+    } catch (error) {
+        console.error("Error updating notes in DB:", error);
+        toast({ variant: "destructive", title: "Sync Error", description: "Failed to save notes."});
+        // Revert UI on failure
+        setCourses(prevCourses => prevCourses.map(c => c.id === courseId ? courseToUpdate : c));
+    }
+  };
   
   const handleAskQuestion = async (course: Course, step: Step, question: string): Promise<AskStepQuestionOutput> => {
     try {
@@ -155,6 +175,24 @@ export default function LearnPage() {
         return { answer: "Sorry, I couldn't process your question. Please try again." };
     }
   };
+
+  const handleAssistWithNotes = async (course: Course, notes: string, request: string): Promise<AssistWithNotesOutput> => {
+    try {
+        return await assistWithNotesAction({
+            topic: course.topic,
+            notes: notes,
+            request: request,
+        });
+    } catch (error) {
+        console.error(error);
+        toast({
+            variant: "destructive",
+            title: "Error Assisting with Notes",
+            description: "Could not get an answer from the AI. Please try again.",
+        });
+        return { suggestion: "Sorry, I couldn't process your request. Please try again." };
+    }
+  }
 
   const handleCreateNew = () => {
     setActiveCourseId(null);
@@ -227,6 +265,8 @@ export default function LearnPage() {
                 course={activeCourse}
                 onUpdateStep={handleUpdateStep}
                 onAskQuestion={handleAskQuestion}
+                onUpdateNotes={handleUpdateNotes}
+                onAssistWithNotes={handleAssistWithNotes}
             />
             ) : (
             <div className="h-full flex items-center justify-center p-4 md:p-8">

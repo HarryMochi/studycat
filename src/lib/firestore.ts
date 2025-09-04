@@ -6,7 +6,10 @@ const coursesCollection = collection(db, 'courses');
 
 // Create
 export async function addCourse(courseData: CourseData): Promise<string> {
-  const docRef = await addDoc(coursesCollection, courseData);
+  const docRef = await addDoc(coursesCollection, {
+    ...courseData,
+    notes: courseData.notes ?? "" // Ensure notes field exists
+  });
   return docRef.id;
 }
 
