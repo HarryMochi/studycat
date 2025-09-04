@@ -14,6 +14,9 @@ import { useAuth } from '@/hooks/use-auth';
 import { Loader2 } from 'lucide-react';
 import MainLayout from '@/components/main-layout';
 import type { AskStepQuestionOutput } from '@/ai/flows/ask-step-question';
+import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
+import MobileHeader from '@/components/mobile-header';
+
 
 export type GenerationState = {
     status: 'idle' | 'generating' | 'done';
@@ -24,6 +27,7 @@ export default function LearnPage() {
   const [activeCourseId, setActiveCourseId] = useState<string | null>(null);
   const [generationState, setGenerationState] = useState<GenerationState>({ status: 'idle' });
   const [isClient, setIsClient] = useState(false);
+  const [isSheetOpen, setIsSheetOpen] = useState(false);
   const { toast } = useToast();
   const { user, loading, logout } = useAuth();
   const router = useRouter();
@@ -154,6 +158,7 @@ export default function LearnPage() {
 
   const handleCreateNew = () => {
     setActiveCourseId(null);
+    setIsSheetOpen(false);
   };
 
   const handleDeleteCourse = async (courseId: string) => {
@@ -172,6 +177,11 @@ export default function LearnPage() {
     }
   };
 
+  const handleSelectCourse = (id: string) => {
+    setActiveCourseId(id);
+    setIsSheetOpen(false);
+  }
+
   if (loading || !isClient) {
     return (
       <MainLayout>
@@ -184,21 +194,33 @@ export default function LearnPage() {
   
   if (!user) return null;
 
+  const sidebarContent = (
+    <HistorySidebar
+      user={user}
+      courses={courses}
+      activeCourseId={activeCourseId}
+      onSelectCourse={handleSelectCourse}
+      onCreateNew={handleCreateNew}
+      onDeleteCourse={handleDeleteCourse}
+      onLogout={logout}
+    />
+  );
+
   return (
     <MainLayout>
+      <div className="md:hidden">
+         <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
+            <MobileHeader onMenuClick={() => setIsSheetOpen(true)} />
+            <SheetContent side="left" className="p-0 w-80">
+                {sidebarContent}
+            </SheetContent>
+        </Sheet>
+      </div>
       <div className="flex h-screen">
-        <div className="w-80 border-r flex flex-col">
-          <HistorySidebar
-            user={user}
-            courses={courses}
-            activeCourseId={activeCourseId}
-            onSelectCourse={setActiveCourseId}
-            onCreateNew={handleCreateNew}
-            onDeleteCourse={handleDeleteCourse}
-            onLogout={logout}
-          />
+        <div className="w-80 border-r flex-col hidden md:flex">
+            {sidebarContent}
         </div>
-        <main className="flex-1 flex flex-col h-screen">
+        <main className="flex-1 flex flex-col h-screen md:h-auto">
             {activeCourse ? (
             <CourseDisplay
                 key={activeCourse.id}
