@@ -115,7 +115,9 @@ export default function NotesDisplay({ course, onUpdateNotes, onAssistWithNotes 
                       <Sparkles className="h-4 w-4 text-accent" />
                       <h4 className="font-semibold">Suggestion</h4>
                     </div>
-                    <p className="text-sm text-muted-foreground whitespace-pre-wrap">{aiSuggestion}</p>
+                    <div className="max-h-64 overflow-y-auto pr-2">
+                        <p className="text-sm text-muted-foreground whitespace-pre-wrap">{aiSuggestion}</p>
+                    </div>
                   </div>
               )}
                {isAsking && (
