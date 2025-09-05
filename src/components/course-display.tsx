@@ -2,38 +2,37 @@
 "use client";
 
 import { useState, useMemo } from 'react';
-import type { Course, Step } from '@/lib/types';
+import type { Course, Step, UserProfile } from '@/lib/types';
 import { Progress } from '@/components/ui/progress';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Checkbox } from '@/components/ui/checkbox';
 import { StepContent } from './step-content';
 import { ScrollArea } from './ui/scroll-area';
 import { Button } from './ui/button';
-import { MessageCircle, Notebook, BookOpen } from 'lucide-react';
+import { MessageCircle, Notebook, BookOpen, Share2 } from 'lucide-react';
 import { AskAiSheet } from './ask-ai-sheet';
 import type { AskStepQuestionOutput } from '@/ai/flows/ask-step-question';
 import type { AssistWithNotesOutput } from '@/ai/flows/assist-with-notes';
-import type { GenerateVisualAidOutput } from '@/ai/flows/generate-visual-aid';
 import { StepQuiz } from './step-quiz';
 import { StepExtras } from './step-extras';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import NotesDisplay from './notes-display';
-import { StepVisualAid } from './step-visual-aid';
+import { ShareDialog } from './share-dialog';
 
 interface CourseDisplayProps {
   course: Course;
+  userProfile: UserProfile;
   onUpdateStep: (courseId: string, stepNumber: number, newStepData: Partial<Step>) => void;
   onAskQuestion: (course: Course, step: Step, question: string) => Promise<AskStepQuestionOutput>;
   onUpdateNotes: (courseId: string, notes: string) => void;
   onAssistWithNotes: (course: Course, notes: string, request: string) => Promise<AssistWithNotesOutput>;
-  onGenerateVisualAid: (course: Course, step: Step) => Promise<GenerateVisualAidOutput>;
 }
 
-export default function CourseDisplay({ course, onUpdateStep, onAskQuestion, onUpdateNotes, onAssistWithNotes, onGenerateVisualAid }: CourseDisplayProps) {
+export default function CourseDisplay({ course, userProfile, onUpdateStep, onAskQuestion, onUpdateNotes, onAssistWithNotes }: CourseDisplayProps) {
   const [activeStepValue, setActiveStepValue] = useState<string | undefined>(undefined);
-  const [isSheetOpen, setSheetOpen] = useState(false);
+  const [isAskSheetOpen, setAskSheetOpen] = useState(false);
+  const [isShareDialogOpen, setShareDialogOpen] = useState(false);
   const [stepForSheet, setStepForSheet] = useState<Step | null>(null);
-  const [generatingVisualForStep, setGeneratingVisualForStep] = useState<number | null>(null);
 
   const completedSteps = useMemo(() => course.steps.filter(step => step.completed).length, [course.steps]);
   const progressPercentage = (completedSteps / course.steps.length) * 100;
@@ -45,24 +44,25 @@ export default function CourseDisplay({ course, onUpdateStep, onAskQuestion, onU
   const handleAskAiClick = (e: React.MouseEvent, step: Step) => {
     e.stopPropagation();
     setStepForSheet(step);
-    setSheetOpen(true);
+    setAskSheetOpen(true);
   };
   
-  const handleGenerateVisualClick = async (e: React.MouseEvent, step: Step) => {
-    e.stopPropagation();
-    setGeneratingVisualForStep(step.stepNumber);
-    try {
-        await onGenerateVisualAid(course, step);
-    } finally {
-        setGeneratingVisualForStep(null);
-    }
-  };
-
   return (
     <>
       <div className="w-full h-full max-w-4xl mx-auto flex flex-col">
         <header className="p-4 md:p-6 pb-0 md:pb-0">
-          <h1 className="font-headline text-3xl md:text-4xl font-bold mb-2">{course.topic}</h1>
+          <div className="flex justify-between items-start">
+            <div>
+              <h1 className="font-headline text-3xl md:text-4xl font-bold mb-2">{course.topic}</h1>
+              {course.sharedBy && <p className="text-sm text-muted-foreground -mt-2 mb-2">Shared by {course.sharedBy}</p>}
+            </div>
+            {userProfile.username && (
+                <Button variant="outline" onClick={() => setShareDialogOpen(true)}>
+                    <Share2 className="mr-2 h-4 w-4" />
+                    Share
+                </Button>
+            )}
+          </div>
           <div className="flex items-center gap-4">
             <Progress value={progressPercentage} className="w-full h-3" />
             <span className="text-sm font-medium text-muted-foreground whitespace-nowrap">
@@ -121,17 +121,10 @@ export default function CourseDisplay({ course, onUpdateStep, onAskQuestion, onU
                           <StepContent
                             content={step.content}
                           />
-
-                          <StepVisualAid 
-                             visualAidUri={step.visualAid}
-                             isGenerating={generatingVisualForStep === step.stepNumber}
-                          />
                           
                           <StepExtras 
                             step={step} 
-                            onAskAiClick={(e) => handleAskAiClick(e, step)}
-                            onGenerateVisualClick={(e) => handleGenerateVisualClick(e, step)}
-                            isGeneratingVisual={generatingVisualForStep === step.stepNumber}
+                            onAskAiClick={(e) => handleAskAiClick(e, step)} 
                           />
 
                           {step.quiz && (
@@ -156,11 +149,19 @@ export default function CourseDisplay({ course, onUpdateStep, onAskQuestion, onU
       </div>
       {stepForSheet && (
         <AskAiSheet
-          open={isSheetOpen}
-          onOpenChange={setSheetOpen}
+          open={isAskSheetOpen}
+          onOpenChange={setAskSheetOpen}
           course={course}
           step={stepForSheet}
           onAskQuestion={onAskQuestion}
+        />
+      )}
+      {userProfile.username && (
+        <ShareDialog
+            open={isShareDialogOpen}
+            onOpenChange={setShareDialogOpen}
+            course={course}
+            fromUserId={userProfile.id}
         />
       )}
     </>

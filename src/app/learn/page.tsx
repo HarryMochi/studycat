@@ -3,9 +3,9 @@
 
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import type { Course, Step } from '@/lib/types';
+import type { Course, Step, ShareRequest } from '@/lib/types';
 import { getCoursesForUser, addCourse, updateCourse, deleteCourse as deleteCourseFromDb } from '@/lib/firestore';
-import { generateCourseAction, askQuestionAction, assistWithNotesAction, generateVisualAidAction } from '../actions';
+import { generateCourseAction, askQuestionAction, assistWithNotesAction, getShareRequestsAction, acceptShareRequestAction, declineShareRequestAction } from '../actions';
 import { useToast } from "@/hooks/use-toast";
 import HistorySidebar from '@/components/history-sidebar';
 import TopicSelection from '@/components/topic-selection';
@@ -15,7 +15,6 @@ import { Loader2 } from 'lucide-react';
 import MainLayout from '@/components/main-layout';
 import type { AskStepQuestionOutput } from '@/ai/flows/ask-step-question';
 import type { AssistWithNotesOutput } from '@/ai/flows/assist-with-notes';
-import type { GenerateVisualAidOutput } from '@/ai/flows/generate-visual-aid';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import MobileHeader from '@/components/mobile-header';
 
@@ -30,8 +29,9 @@ export default function LearnPage() {
   const [generationState, setGenerationState] = useState<GenerationState>({ status: 'idle' });
   const [isClient, setIsClient] = useState(false);
   const [isSheetOpen, setIsSheetOpen] = useState(false);
+  const [shareRequests, setShareRequests] = useState<ShareRequest[]>([]);
   const { toast } = useToast();
-  const { user, loading, logout } = useAuth();
+  const { user, userProfile, loading, logout, reloadProfile } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
@@ -48,9 +48,19 @@ export default function LearnPage() {
     }
   }, [user]);
 
+  const fetchShareRequests = useCallback(async () => {
+    if (user && userProfile?.username) {
+        const requests = await getShareRequestsAction(user.uid);
+        setShareRequests(requests);
+    } else {
+        setShareRequests([]);
+    }
+  }, [user, userProfile]);
+
   useEffect(() => {
     fetchCourses();
-  }, [fetchCourses]);
+    fetchShareRequests();
+  }, [fetchCourses, fetchShareRequests]);
 
   const activeCourse = useMemo(() => {
     return courses.find(c => c.id === activeCourseId) || null;
@@ -195,28 +205,6 @@ export default function LearnPage() {
     }
   }
 
-  const handleGenerateVisualAid = async (course: Course, step: Step): Promise<GenerateVisualAidOutput> => {
-    try {
-        const result = await generateVisualAidAction({
-            topic: course.topic,
-            stepTitle: step.title,
-            stepContent: step.content || '',
-        });
-        // Once we have the image, update the step
-        await handleUpdateStep(course.id, step.stepNumber, { visualAid: result.imageDataUri });
-        return result;
-    } catch (error) {
-        console.error(error);
-        toast({
-            variant: "destructive",
-            title: "Error Generating Visual Aid",
-            description: "Could not generate an image for this step. Please try again.",
-        });
-        throw error;
-    }
-  };
-
-
   const handleCreateNew = () => {
     setActiveCourseId(null);
     setIsSheetOpen(false);
@@ -243,6 +231,30 @@ export default function LearnPage() {
     setIsSheetOpen(false);
   }
 
+   const handleAcceptShare = async (requestId: string) => {
+    if (!user) return;
+    const result = await acceptShareRequestAction(user.uid, requestId);
+    if (result.success) {
+      toast({ title: "Success", description: result.message });
+      await fetchCourses();
+      await fetchShareRequests();
+    } else {
+      toast({ variant: 'destructive', title: "Error", description: result.message });
+    }
+  };
+
+  const handleDeclineShare = async (requestId: string) => {
+    if (!user) return;
+    const result = await declineShareRequestAction(user.uid, requestId);
+    if (result.success) {
+      toast({ title: "Declined", description: "You have declined the share request." });
+      setShareRequests(prev => prev.filter(req => req.id !== requestId));
+    } else {
+      toast({ variant: 'destructive', title: "Error", description: result.message });
+    }
+  };
+
+
   if (loading || !isClient) {
     return (
       <MainLayout>
@@ -253,17 +265,22 @@ export default function LearnPage() {
     );
   }
   
-  if (!user) return null;
+  if (!user || !userProfile) return null;
 
   const sidebarContent = (
     <HistorySidebar
       user={user}
+      userProfile={userProfile}
       courses={courses}
       activeCourseId={activeCourseId}
       onSelectCourse={handleSelectCourse}
       onCreateNew={handleCreateNew}
       onDeleteCourse={handleDeleteCourse}
       onLogout={logout}
+      onProfileUpdate={reloadProfile}
+      shareRequests={shareRequests}
+      onAcceptShare={handleAcceptShare}
+      onDeclineShare={handleDeclineShare}
     />
   );
 
@@ -290,7 +307,7 @@ export default function LearnPage() {
                 onAskQuestion={handleAskQuestion}
                 onUpdateNotes={handleUpdateNotes}
                 onAssistWithNotes={handleAssistWithNotes}
-                onGenerateVisualAid={handleGenerateVisualAid}
+                userProfile={userProfile}
             />
             ) : (
             <div className="h-full flex items-center justify-center p-4 md:p-8">

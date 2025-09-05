@@ -3,7 +3,7 @@
 
 import type { Step } from "@/lib/types";
 import { Button } from "./ui/button";
-import { Bot, Lightbulb, Link as LinkIcon, Images, Loader2 } from "lucide-react";
+import { Bot, Lightbulb, Link as LinkIcon } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import Link from "next/link";
 import { Separator } from "./ui/separator";
@@ -11,25 +11,17 @@ import { Separator } from "./ui/separator";
 interface StepExtrasProps {
   step: Step;
   onAskAiClick: (e: React.MouseEvent) => void;
-  onGenerateVisualClick: (e: React.MouseEvent) => void;
-  isGeneratingVisual: boolean;
 }
 
-export function StepExtras({ step, onAskAiClick, onGenerateVisualClick, isGeneratingVisual }: StepExtrasProps) {
+export function StepExtras({ step, onAskAiClick }: StepExtrasProps) {
   const hasExtras = step.funFact || (step.externalLinks && step.externalLinks.length > 0);
 
   return (
-    <div className="space-y-4">
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-        <Button onClick={onAskAiClick} variant="outline">
-          <Bot className="mr-2 h-4 w-4" />
-          Ask AI a Question
-        </Button>
-        <Button onClick={onGenerateVisualClick} variant="outline" disabled={isGeneratingVisual || !step.content || !!step.visualAid}>
-            {isGeneratingVisual ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Images className="mr-2 h-4 w-4" />}
-            {step.visualAid ? 'Visual Generated' : 'Visualize Step'}
-        </Button>
-      </div>
+    <div className="space-y-6">
+      <Button onClick={onAskAiClick} variant="outline" className="w-full">
+        <Bot className="mr-2 h-4 w-4" />
+        Ask AI a Question about this Step
+      </Button>
 
       {hasExtras && <Separator />}
 

@@ -1,10 +1,11 @@
-
 'use server';
 
 import { generateFullCourse, type GenerateFullCourseInput, type GenerateFullCourseOutput } from '@/ai/flows/generate-full-course';
 import { askStepQuestion, type AskStepQuestionInput, type AskStepQuestionOutput } from '@/ai/flows/ask-step-question';
 import { assistWithNotes, type AssistWithNotesInput, type AssistWithNotesOutput } from '@/ai/flows/assist-with-notes';
-import { generateVisualAid, type GenerateVisualAidInput, type GenerateVisualAidOutput } from '@/ai/flows/generate-visual-aid';
+import { updateUserProfile as updateUserProfileInDb, shareCourseWithUser as shareCourseWithUserInDb, acceptShareRequest as acceptShareRequestInDb, declineShareRequest as declineShareRequestInDb, getShareRequests as getShareRequestsFromDb, getUserProfile } from '@/lib/firestore';
+import type { UserProfile } from '@/lib/types';
+import { revalidatePath } from 'next/cache';
 
 export async function generateCourseAction(input: GenerateFullCourseInput): Promise<GenerateFullCourseOutput> {
     try {
@@ -46,14 +47,61 @@ export async function assistWithNotesAction(input: AssistWithNotesInput): Promis
     }
 }
 
-export async function generateVisualAidAction(input: GenerateVisualAidInput): Promise<GenerateVisualAidOutput> {
+// --- Profile and Sharing Actions ---
+
+export async function updateUserProfileAction(userId: string, updates: Partial<UserProfile>) {
     try {
-        return await generateVisualAid(input);
-    } catch (error) {
-        console.error("Error in generateVisualAidAction:", error);
-        if (error instanceof Error) {
-            throw new Error(error.message);
+        const result = await updateUserProfileInDb(userId, updates);
+        if(result.success) {
+            revalidatePath('/learn');
         }
-        throw new Error("An unknown error occurred while generating the visual aid.");
+        return result;
+    } catch (error) {
+        console.error("Error in updateUserProfileAction:", error);
+        return { success: false, message: error instanceof Error ? error.message : "An unknown server error occurred." };
+    }
+}
+
+
+export async function shareCourseAction(fromUserId: string, toUsername: string, courseId: string) {
+    try {
+        const fromUserProfile = await getUserProfile(fromUserId);
+        if (!fromUserProfile) {
+            return { success: false, message: "Could not find your profile to share." };
+        }
+        return await shareCourseWithUserInDb(fromUserProfile, toUsername, courseId);
+    } catch (error) {
+        console.error("Error in shareCourseAction:", error);
+        return { success: false, message: error instanceof Error ? error.message : "An unknown server error occurred." };
+    }
+}
+
+export async function getShareRequestsAction(userId: string) {
+    try {
+        return await getShareRequestsFromDb(userId);
+    } catch (error) {
+        console.error("Error in getShareRequestsAction:", error);
+        return [];
+    }
+}
+
+export async function acceptShareRequestAction(userId: string, requestId: string) {
+    try {
+        await acceptShareRequestInDb(userId, requestId);
+        revalidatePath('/learn');
+        return { success: true, message: "Course accepted!" };
+    } catch (error) {
+        console.error("Error in acceptShareRequestAction:", error);
+        return { success: false, message: error instanceof Error ? error.message : "Failed to accept course." };
+    }
+}
+
+export async function declineShareRequestAction(userId: string, requestId: string) {
+    try {
+        await declineShareRequestInDb(userId, requestId);
+        return { success: true, message: "Course declined." };
+    } catch (error) {
+        console.error("Error in declineShareRequestAction:", error);
+        return { success: false, message: "Failed to decline course." };
     }
 }
