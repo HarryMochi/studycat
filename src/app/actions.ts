@@ -4,6 +4,7 @@
 import { generateFullCourse, type GenerateFullCourseInput, type GenerateFullCourseOutput } from '@/ai/flows/generate-full-course';
 import { askStepQuestion, type AskStepQuestionInput, type AskStepQuestionOutput } from '@/ai/flows/ask-step-question';
 import { assistWithNotes, type AssistWithNotesInput, type AssistWithNotesOutput } from '@/ai/flows/assist-with-notes';
+import { generateVisualAid, type GenerateVisualAidInput, type GenerateVisualAidOutput } from '@/ai/flows/generate-visual-aid';
 
 export async function generateCourseAction(input: GenerateFullCourseInput): Promise<GenerateFullCourseOutput> {
     try {
@@ -42,5 +43,17 @@ export async function assistWithNotesAction(input: AssistWithNotesInput): Promis
             throw new Error(error.message);
         }
         throw new Error("An unknown error occurred while assisting with notes.");
+    }
+}
+
+export async function generateVisualAidAction(input: GenerateVisualAidInput): Promise<GenerateVisualAidOutput> {
+    try {
+        return await generateVisualAid(input);
+    } catch (error) {
+        console.error("Error in generateVisualAidAction:", error);
+        if (error instanceof Error) {
+            throw new Error(error.message);
+        }
+        throw new Error("An unknown error occurred while generating the visual aid.");
     }
 }

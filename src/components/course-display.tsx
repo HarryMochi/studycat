@@ -13,10 +13,12 @@ import { MessageCircle, Notebook, BookOpen } from 'lucide-react';
 import { AskAiSheet } from './ask-ai-sheet';
 import type { AskStepQuestionOutput } from '@/ai/flows/ask-step-question';
 import type { AssistWithNotesOutput } from '@/ai/flows/assist-with-notes';
+import type { GenerateVisualAidOutput } from '@/ai/flows/generate-visual-aid';
 import { StepQuiz } from './step-quiz';
 import { StepExtras } from './step-extras';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import NotesDisplay from './notes-display';
+import { StepVisualAid } from './step-visual-aid';
 
 interface CourseDisplayProps {
   course: Course;
@@ -24,12 +26,14 @@ interface CourseDisplayProps {
   onAskQuestion: (course: Course, step: Step, question: string) => Promise<AskStepQuestionOutput>;
   onUpdateNotes: (courseId: string, notes: string) => void;
   onAssistWithNotes: (course: Course, notes: string, request: string) => Promise<AssistWithNotesOutput>;
+  onGenerateVisualAid: (course: Course, step: Step) => Promise<GenerateVisualAidOutput>;
 }
 
-export default function CourseDisplay({ course, onUpdateStep, onAskQuestion, onUpdateNotes, onAssistWithNotes }: CourseDisplayProps) {
+export default function CourseDisplay({ course, onUpdateStep, onAskQuestion, onUpdateNotes, onAssistWithNotes, onGenerateVisualAid }: CourseDisplayProps) {
   const [activeStepValue, setActiveStepValue] = useState<string | undefined>(undefined);
   const [isSheetOpen, setSheetOpen] = useState(false);
   const [stepForSheet, setStepForSheet] = useState<Step | null>(null);
+  const [generatingVisualForStep, setGeneratingVisualForStep] = useState<number | null>(null);
 
   const completedSteps = useMemo(() => course.steps.filter(step => step.completed).length, [course.steps]);
   const progressPercentage = (completedSteps / course.steps.length) * 100;
@@ -44,6 +48,16 @@ export default function CourseDisplay({ course, onUpdateStep, onAskQuestion, onU
     setSheetOpen(true);
   };
   
+  const handleGenerateVisualClick = async (e: React.MouseEvent, step: Step) => {
+    e.stopPropagation();
+    setGeneratingVisualForStep(step.stepNumber);
+    try {
+        await onGenerateVisualAid(course, step);
+    } finally {
+        setGeneratingVisualForStep(null);
+    }
+  };
+
   return (
     <>
       <div className="w-full h-full max-w-4xl mx-auto flex flex-col">
@@ -107,10 +121,17 @@ export default function CourseDisplay({ course, onUpdateStep, onAskQuestion, onU
                           <StepContent
                             content={step.content}
                           />
+
+                          <StepVisualAid 
+                             visualAidUri={step.visualAid}
+                             isGenerating={generatingVisualForStep === step.stepNumber}
+                          />
                           
                           <StepExtras 
                             step={step} 
-                            onAskAiClick={(e) => handleAskAiClick(e, step)} 
+                            onAskAiClick={(e) => handleAskAiClick(e, step)}
+                            onGenerateVisualClick={(e) => handleGenerateVisualClick(e, step)}
+                            isGeneratingVisual={generatingVisualForStep === step.stepNumber}
                           />
 
                           {step.quiz && (

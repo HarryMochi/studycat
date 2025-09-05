@@ -5,7 +5,7 @@ import { useState, useEffect, useMemo, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import type { Course, Step } from '@/lib/types';
 import { getCoursesForUser, addCourse, updateCourse, deleteCourse as deleteCourseFromDb } from '@/lib/firestore';
-import { generateCourseAction, askQuestionAction, assistWithNotesAction } from '../actions';
+import { generateCourseAction, askQuestionAction, assistWithNotesAction, generateVisualAidAction } from '../actions';
 import { useToast } from "@/hooks/use-toast";
 import HistorySidebar from '@/components/history-sidebar';
 import TopicSelection from '@/components/topic-selection';
@@ -15,6 +15,7 @@ import { Loader2 } from 'lucide-react';
 import MainLayout from '@/components/main-layout';
 import type { AskStepQuestionOutput } from '@/ai/flows/ask-step-question';
 import type { AssistWithNotesOutput } from '@/ai/flows/assist-with-notes';
+import type { GenerateVisualAidOutput } from '@/ai/flows/generate-visual-aid';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import MobileHeader from '@/components/mobile-header';
 
@@ -194,6 +195,28 @@ export default function LearnPage() {
     }
   }
 
+  const handleGenerateVisualAid = async (course: Course, step: Step): Promise<GenerateVisualAidOutput> => {
+    try {
+        const result = await generateVisualAidAction({
+            topic: course.topic,
+            stepTitle: step.title,
+            stepContent: step.content || '',
+        });
+        // Once we have the image, update the step
+        await handleUpdateStep(course.id, step.stepNumber, { visualAid: result.imageDataUri });
+        return result;
+    } catch (error) {
+        console.error(error);
+        toast({
+            variant: "destructive",
+            title: "Error Generating Visual Aid",
+            description: "Could not generate an image for this step. Please try again.",
+        });
+        throw error;
+    }
+  };
+
+
   const handleCreateNew = () => {
     setActiveCourseId(null);
     setIsSheetOpen(false);
@@ -267,6 +290,7 @@ export default function LearnPage() {
                 onAskQuestion={handleAskQuestion}
                 onUpdateNotes={handleUpdateNotes}
                 onAssistWithNotes={handleAssistWithNotes}
+                onGenerateVisualAid={handleGenerateVisualAid}
             />
             ) : (
             <div className="h-full flex items-center justify-center p-4 md:p-8">

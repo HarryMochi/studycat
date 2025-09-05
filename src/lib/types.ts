@@ -20,6 +20,7 @@ export interface Step {
   funFact?: string;
   externalLinks?: ExternalLink[];
   completed: boolean;
+  visualAid?: string;
 }
 
 export interface Course {
