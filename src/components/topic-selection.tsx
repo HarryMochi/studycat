@@ -12,6 +12,7 @@ import { Input } from "@/components/ui/input";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Logo from "./logo";
 import type { GenerationState } from "@/app/learn/page";
+import Image from "next/image";
 
 const formSchema = z.object({
   topic: z.string().min(2, {
@@ -55,7 +56,14 @@ export default function TopicSelection({ onGenerateCourse, generationState }: To
         <CardContent>
           {isGenerating ? (
             <div className="flex flex-col items-center justify-center space-y-4 pt-8">
-              <Loader2 className="h-8 w-8 animate-spin text-primary" />
+              <Image
+                src="https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExMXk4OGxrMHU0MGtuYjEyb2Z3MWNmZDR0Zjg5NGZ5bTh5NTRrNWxsaSZlcD12MV9zdGlja2Vyc19zZWFyY2gmY3Q9cw/oz45ELYgMoYVsZqmor/giphy.gif"
+                width={150}
+                height={150}
+                alt="AI cat working hard"
+                unoptimized={true}
+                className="rounded-lg"
+              />
               <p className="text-muted-foreground font-medium">Building your course... This may take a minute.</p>
             </div>
           ) : (
