@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState, useEffect, useMemo, useCallback } from 'react';
@@ -49,13 +48,13 @@ export default function LearnPage() {
   }, [user]);
 
   const fetchShareRequests = useCallback(async () => {
-    if (user && userProfile?.username) {
+    if (user) {
         const requests = await getShareRequestsAction(user.uid);
         setShareRequests(requests);
     } else {
         setShareRequests([]);
     }
-  }, [user, userProfile]);
+  }, [user]);
 
   useEffect(() => {
     fetchCourses();
@@ -303,11 +302,11 @@ export default function LearnPage() {
             <CourseDisplay
                 key={activeCourse.id}
                 course={activeCourse}
+                userProfile={userProfile}
                 onUpdateStep={handleUpdateStep}
                 onAskQuestion={handleAskQuestion}
                 onUpdateNotes={handleUpdateNotes}
                 onAssistWithNotes={handleAssistWithNotes}
-                userProfile={userProfile}
             />
             ) : (
             <div className="h-full flex items-center justify-center p-4 md:p-8">

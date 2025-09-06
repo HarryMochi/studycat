@@ -1,9 +1,6 @@
 import { db } from './firebase';
-import { collection, addDoc, getDocs, query, where, doc, updateDoc, deleteDoc, orderBy, runTransaction, getDoc, writeBatch, serverTimestamp, collectionGroup } from 'firebase/firestore';
+import { collection, addDoc, getDocs, query, where, doc, updateDoc, deleteDoc, orderBy, runTransaction, getDoc, serverTimestamp } from 'firebase/firestore';
 import type { Course, CourseData, ShareRequest, UserProfile } from './types';
-
-const usersCollection = collection(db, 'users');
-const coursesCollection = collection(db, 'courses');
 
 // --- User Profile Functions ---
 
@@ -16,39 +13,19 @@ export async function getUserProfile(userId: string): Promise<UserProfile | null
   return null;
 }
 
-export async function createUserProfile(userId: string, data: { email: string, displayName?: string | null, photoURL?: string | null }): Promise<void> {
+export async function createUserProfile(userId: string, data: { email: string, photoURL?: string | null }): Promise<void> {
     const userDocRef = doc(db, 'users', userId);
     await runTransaction(db, async (transaction) => {
         const userDoc = await transaction.get(userDocRef);
         if (!userDoc.exists()) {
             transaction.set(userDocRef, {
                 email: data.email,
-                displayName: data.displayName || null,
                 photoURL: data.photoURL || null,
             });
         }
     });
 }
 
-export async function updateUserProfile(userId: string, updates: Partial<UserProfile>): Promise<{success: boolean; message: string}> {
-    const userDocRef = doc(db, 'users', userId);
-
-    if (updates.username) {
-        const newUsername = updates.username.toLowerCase();
-        // Check if username is unique
-        const q = query(usersCollection, where('username', '==', newUsername));
-        const querySnapshot = await getDocs(q);
-        const existingUser = querySnapshot.docs.find(d => d.id !== userId);
-        
-        if (existingUser) {
-            return { success: false, message: "Username is already taken. Please choose another." };
-        }
-        updates.username = newUsername; // save lowercase version
-    }
-
-    await updateDoc(userDocRef, updates);
-    return { success: true, message: "Profile updated successfully!" };
-}
 
 // --- Course Functions ---
 
@@ -62,6 +39,7 @@ export async function addCourse(courseData: CourseData): Promise<string> {
 }
 
 // Read
+const coursesCollection = collection(db, 'courses');
 export async function getCoursesForUser(userId: string): Promise<Course[]> {
   const q = query(coursesCollection, where('userId', '==', userId), orderBy('createdAt', 'desc'));
   const querySnapshot = await getDocs(q);
@@ -83,32 +61,22 @@ export async function deleteCourse(courseId: string): Promise<void> {
 
 // --- Sharing Functions ---
 
-export async function shareCourseWithUser(fromUser: UserProfile, toUsername: string, courseId: string): Promise<{success: boolean; message: string}> {
-    if (!fromUser.username) {
-        return { success: false, message: "You must have a username to share courses." };
-    }
-    
-    const toUsernameLower = toUsername.toLowerCase();
-    if (fromUser.username.toLowerCase() === toUsernameLower) {
+export async function shareCourseWithUser(fromUserId: string, toUserId: string, courseId: string): Promise<{success: boolean; message: string}> {
+    if (fromUserId === toUserId) {
         return { success: false, message: "You cannot share a course with yourself." };
     }
 
-    const q = query(usersCollection, where('username', '==', toUsernameLower));
-    const querySnapshot = await getDocs(q);
-    
-    if (querySnapshot.empty) {
-        return { success: false, message: `User with username "${toUsername}" not found.` };
+    const fromUser = await getUserProfile(fromUserId);
+    if (!fromUser) {
+        return { success: false, message: "Could not find your user profile." };
     }
     
-    const recipientUserDoc = querySnapshot.docs[0];
-    const recipientUser = recipientUserDoc.data() as UserProfile;
-
-    if (!recipientUser.username) {
-        return { success: false, message: `This user has not set up a username and cannot receive shares.` };
+    const recipientProfile = await getUserProfile(toUserId);
+    if (!recipientProfile) {
+        return { success: false, message: `User with ID "${toUserId}" not found.` };
     }
-
-    const recipientId = recipientUserDoc.id;
-    const shareRequestRef = collection(db, 'users', recipientId, 'shareRequests');
+    
+    const shareRequestRef = collection(db, 'users', toUserId, 'shareRequests');
     
     const courseDocRef = doc(db, 'courses', courseId);
     const courseDoc = await getDoc(courseDocRef);
@@ -117,14 +85,17 @@ export async function shareCourseWithUser(fromUser: UserProfile, toUsername: str
     }
 
     await addDoc(shareRequestRef, {
-        fromUsername: fromUser.username,
+        fromUser: {
+            id: fromUser.id,
+            email: fromUser.email,
+        },
         courseId: courseId,
         courseTopic: courseDoc.data().topic,
         status: 'pending',
         createdAt: serverTimestamp(),
     });
 
-    return { success: true, message: `Course shared with ${toUsername}!` };
+    return { success: true, message: `Course shared with ${recipientProfile.email}!` };
 }
 
 export async function getShareRequests(userId: string): Promise<ShareRequest[]> {
@@ -159,7 +130,7 @@ export async function acceptShareRequest(userId: string, requestId: string): Pro
             ...originalCourseData,
             userId: userId, // Assign to the new user
             createdAt: new Date().toISOString(),
-            sharedBy: requestData.fromUsername,
+            sharedBy: requestData.fromUser,
             originalCourseId: requestData.courseId,
             notes: "", // Start with fresh notes
         };

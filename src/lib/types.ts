@@ -1,5 +1,3 @@
-
-
 export interface Quiz {
   question: string;
   options: string[];
@@ -32,24 +30,27 @@ export interface Course {
   notes: string;
   createdAt: string;
   // Fields for sharing
-  sharedBy?: string; // Username of the person who shared it
+  sharedBy?: {
+    id: string;
+    email: string | null;
+  };
   originalCourseId?: string;
 }
 
 export type CourseData = Omit<Course, 'id'>;
 
-
 export interface UserProfile {
     id: string; // Firebase Auth UID
     email: string;
-    username?: string;
     photoURL?: string | null;
-    displayName?: string | null;
 }
 
 export interface ShareRequest {
     id: string;
-    fromUsername: string;
+    fromUser: {
+        id: string;
+        email: string | null;
+    };
     courseTopic: string;
     courseId: string;
     status: 'pending' | 'accepted' | 'declined';

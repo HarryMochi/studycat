@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState, useMemo } from 'react';
@@ -54,14 +53,12 @@ export default function CourseDisplay({ course, userProfile, onUpdateStep, onAsk
           <div className="flex justify-between items-start">
             <div>
               <h1 className="font-headline text-3xl md:text-4xl font-bold mb-2">{course.topic}</h1>
-              {course.sharedBy && <p className="text-sm text-muted-foreground -mt-2 mb-2">Shared by {course.sharedBy}</p>}
+              {course.sharedBy && <p className="text-sm text-muted-foreground -mt-2 mb-2">Shared by {course.sharedBy.email}</p>}
             </div>
-            {userProfile.username && (
-                <Button variant="outline" onClick={() => setShareDialogOpen(true)}>
-                    <Share2 className="mr-2 h-4 w-4" />
-                    Share
-                </Button>
-            )}
+            <Button variant="outline" onClick={() => setShareDialogOpen(true)}>
+                <Share2 className="mr-2 h-4 w-4" />
+                Share
+            </Button>
           </div>
           <div className="flex items-center gap-4">
             <Progress value={progressPercentage} className="w-full h-3" />
@@ -156,14 +153,11 @@ export default function CourseDisplay({ course, userProfile, onUpdateStep, onAsk
           onAskQuestion={onAskQuestion}
         />
       )}
-      {userProfile.username && (
-        <ShareDialog
-            open={isShareDialogOpen}
-            onOpenChange={setShareDialogOpen}
-            course={course}
-            fromUserId={userProfile.id}
-        />
-      )}
+      <ShareDialog
+          open={isShareDialogOpen}
+          onOpenChange={setShareDialogOpen}
+          course={course}
+      />
     </>
   );
 }

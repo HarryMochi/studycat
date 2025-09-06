@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState } from "react";
@@ -17,26 +16,31 @@ import { Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { shareCourseAction } from "@/app/actions";
 import type { Course } from "@/lib/types";
+import { useAuth } from "@/hooks/use-auth";
 
 interface ShareDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   course: Course;
-  fromUserId: string;
 }
 
-export function ShareDialog({ open, onOpenChange, course, fromUserId }: ShareDialogProps) {
-  const [username, setUsername] = useState("");
+export function ShareDialog({ open, onOpenChange, course }: ShareDialogProps) {
+  const [userId, setUserId] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
+  const { user } = useAuth();
 
   const handleShare = async () => {
-    if (!username.trim()) {
-      toast({ variant: "destructive", title: "Username required", description: "Please enter a username to share with." });
+    if (!user) {
+        toast({ variant: "destructive", title: "Authentication Error", description: "You must be logged in to share." });
+        return;
+    }
+    if (!userId.trim()) {
+      toast({ variant: "destructive", title: "User ID required", description: "Please enter a User ID to share with." });
       return;
     }
     setIsLoading(true);
-    const result = await shareCourseAction(fromUserId, username, course.id);
+    const result = await shareCourseAction(user.uid, userId.trim(), course.id);
     setIsLoading(false);
 
     if (result.success) {
@@ -45,7 +49,7 @@ export function ShareDialog({ open, onOpenChange, course, fromUserId }: ShareDia
         description: result.message,
       });
       onOpenChange(false);
-      setUsername("");
+      setUserId("");
     } else {
       toast({
         variant: "destructive",
@@ -61,20 +65,20 @@ export function ShareDialog({ open, onOpenChange, course, fromUserId }: ShareDia
         <DialogHeader>
           <DialogTitle>Share Course</DialogTitle>
           <DialogDescription>
-            Share "{course.topic}" with another user by entering their unique username.
+            Share "{course.topic}" with another user by entering their unique User ID.
           </DialogDescription>
         </DialogHeader>
         <div className="grid gap-4 py-4">
           <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="username" className="text-right">
-              Username
+            <Label htmlFor="userId" className="text-right">
+              User ID
             </Label>
             <Input
-              id="username"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
+              id="userId"
+              value={userId}
+              onChange={(e) => setUserId(e.target.value)}
               className="col-span-3"
-              placeholder="e.g., learncat123"
+              placeholder="Paste the user's ID here"
             />
           </div>
         </div>

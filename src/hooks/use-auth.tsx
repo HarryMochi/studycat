@@ -1,4 +1,3 @@
-
 "use client";
 
 import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
@@ -16,7 +15,6 @@ interface AuthContextType {
   login: (email: string, password: string) => Promise<any>;
   loginWithGoogle: () => Promise<any>;
   logout: () => Promise<any>;
-  reloadProfile: () => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -33,19 +31,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (!profile) {
       await createUserProfile(firebaseUser.uid, {
         email: firebaseUser.email!,
-        displayName: firebaseUser.displayName,
         photoURL: firebaseUser.photoURL
       });
       profile = await getUserProfile(firebaseUser.uid);
     }
     setUserProfile(profile);
   };
-
-  const reloadProfile = async () => {
-    if (user) {
-        await fetchUserProfile(user);
-    }
-  }
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
@@ -95,7 +86,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     login,
     loginWithGoogle,
     logout,
-    reloadProfile,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

@@ -1,4 +1,3 @@
-
 "use client";
 
 import type { Course, UserProfile, ShareRequest } from "@/lib/types";
@@ -43,7 +42,6 @@ interface HistorySidebarProps {
   onCreateNew: () => void;
   onDeleteCourse: (id: string) => void;
   onLogout: () => void;
-  onProfileUpdate: () => void;
   shareRequests: ShareRequest[];
   onAcceptShare: (requestId: string) => void;
   onDeclineShare: (requestId: string) => void;
@@ -58,7 +56,6 @@ export default function HistorySidebar({
   onCreateNew,
   onDeleteCourse,
   onLogout,
-  onProfileUpdate,
   shareRequests,
   onAcceptShare,
   onDeclineShare,
@@ -66,13 +63,9 @@ export default function HistorySidebar({
   const [isProfileOpen, setIsProfileOpen] = React.useState(false);
   const [isInboxOpen, setIsInboxOpen] = React.useState(false);
 
-  const getInitials = (name: string | null | undefined) => {
-    if (!name) return 'U';
-    const names = name.split(' ');
-    if (names.length > 1) {
-        return names[0][0] + names[names.length - 1][0];
-    }
-    return name.substring(0, 2).toUpperCase();
+  const getInitials = (email: string | null | undefined) => {
+    if (!email) return 'U';
+    return email.substring(0, 2).toUpperCase();
   }
 
   return (
@@ -82,18 +75,16 @@ export default function HistorySidebar({
           <Link href="/">
             <Logo />
           </Link>
-          {userProfile.username && (
-            <div className="relative">
-              <Button variant="ghost" size="icon" onClick={() => setIsInboxOpen(true)}>
-                <Mail className="h-5 w-5" />
-              </Button>
-              {shareRequests.length > 0 && (
-                <Badge variant="destructive" className="absolute -top-1 -right-2 h-5 w-5 p-0 flex items-center justify-center">
-                  {shareRequests.length}
-                </Badge>
-              )}
-            </div>
-          )}
+          <div className="relative">
+            <Button variant="ghost" size="icon" onClick={() => setIsInboxOpen(true)}>
+              <Mail className="h-5 w-5" />
+            </Button>
+            {shareRequests.length > 0 && (
+              <Badge variant="destructive" className="absolute -top-1 -right-2 h-5 w-5 p-0 flex items-center justify-center">
+                {shareRequests.length}
+              </Badge>
+            )}
+          </div>
         </div>
         <div className="p-4 pt-0">
           <Button onClick={onCreateNew} className="w-full">
@@ -117,7 +108,7 @@ export default function HistorySidebar({
                     <div className="flex flex-col gap-1 w-full overflow-hidden">
                       <span className="font-medium truncate">{course.topic}</span>
                       {course.sharedBy && (
-                        <span className="text-xs text-muted-foreground">Shared by {course.sharedBy}</span>
+                        <span className="text-xs text-muted-foreground">Shared by {course.sharedBy.email}</span>
                       )}
                       <div className="flex items-center justify-between text-xs text-muted-foreground">
                         <span>
@@ -161,12 +152,11 @@ export default function HistorySidebar({
               <DropdownMenuTrigger asChild>
                   <Button variant="ghost" className="w-full justify-start items-center gap-2 p-2 h-auto text-left">
                       <Avatar className="h-8 w-8">
-                          <AvatarImage src={user.photoURL ?? undefined} alt={userProfile.username ?? user.displayName ?? "User"} />
-                          <AvatarFallback>{getInitials(userProfile.username ?? user.displayName)}</AvatarFallback>
+                          <AvatarImage src={user.photoURL ?? undefined} alt={user.email ?? "User"} />
+                          <AvatarFallback>{getInitials(user.email)}</AvatarFallback>
                       </Avatar>
                       <div className="flex flex-col items-start overflow-hidden">
-                          <span className="font-medium truncate text-sm">{userProfile.username || user.displayName || "User"}</span>
-                          <span className="text-xs text-muted-foreground truncate">{user.email}</span>
+                          <span className="font-medium truncate text-sm">{user.email}</span>
                       </div>
                       <MoreHorizontal className="h-4 w-4 ml-auto" />
                   </Button>
@@ -189,17 +179,14 @@ export default function HistorySidebar({
         open={isProfileOpen}
         onOpenChange={setIsProfileOpen}
         userProfile={userProfile}
-        onProfileUpdate={onProfileUpdate}
       />
-      {userProfile.username && (
-         <InboxSheet
-            open={isInboxOpen}
-            onOpenChange={setIsInboxOpen}
-            requests={shareRequests}
-            onAccept={onAcceptShare}
-            onDecline={onDeclineShare}
-         />
-      )}
+      <InboxSheet
+          open={isInboxOpen}
+          onOpenChange={setIsInboxOpen}
+          requests={shareRequests}
+          onAccept={onAcceptShare}
+          onDecline={onDeclineShare}
+      />
     </>
   );
 }

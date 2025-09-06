@@ -1,4 +1,3 @@
-
 "use client";
 
 import type { ShareRequest } from "@/lib/types";
@@ -38,7 +37,7 @@ export function InboxSheet({ open, onOpenChange, requests, onAccept, onDecline }
               {requests.map((req) => (
                 <div key={req.id} className="p-4 border rounded-lg bg-muted/50">
                   <p className="font-semibold text-sm">
-                    <span className="font-bold">{req.fromUsername}</span> wants to share the course:
+                    <span className="font-bold">{req.fromUser.email}</span> wants to share the course:
                   </p>
                   <p className="font-bold text-primary truncate my-1">
                     {req.courseTopic}

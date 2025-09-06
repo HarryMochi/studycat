@@ -3,8 +3,7 @@
 import { generateFullCourse, type GenerateFullCourseInput, type GenerateFullCourseOutput } from '@/ai/flows/generate-full-course';
 import { askStepQuestion, type AskStepQuestionInput, type AskStepQuestionOutput } from '@/ai/flows/ask-step-question';
 import { assistWithNotes, type AssistWithNotesInput, type AssistWithNotesOutput } from '@/ai/flows/assist-with-notes';
-import { updateUserProfile as updateUserProfileInDb, shareCourseWithUser as shareCourseWithUserInDb, acceptShareRequest as acceptShareRequestInDb, declineShareRequest as declineShareRequestInDb, getShareRequests as getShareRequestsFromDb, getUserProfile } from '@/lib/firestore';
-import type { UserProfile } from '@/lib/types';
+import { shareCourseWithUser as shareCourseWithUserInDb, acceptShareRequest as acceptShareRequestInDb, declineShareRequest as declineShareRequestInDb, getShareRequests as getShareRequestsFromDb } from '@/lib/firestore';
 import { revalidatePath } from 'next/cache';
 
 export async function generateCourseAction(input: GenerateFullCourseInput): Promise<GenerateFullCourseOutput> {
@@ -47,29 +46,10 @@ export async function assistWithNotesAction(input: AssistWithNotesInput): Promis
     }
 }
 
-// --- Profile and Sharing Actions ---
-
-export async function updateUserProfileAction(userId: string, updates: Partial<UserProfile>) {
+// --- Sharing Actions ---
+export async function shareCourseAction(fromUserId: string, toUserId: string, courseId: string) {
     try {
-        const result = await updateUserProfileInDb(userId, updates);
-        if(result.success) {
-            revalidatePath('/learn');
-        }
-        return result;
-    } catch (error) {
-        console.error("Error in updateUserProfileAction:", error);
-        return { success: false, message: error instanceof Error ? error.message : "An unknown server error occurred." };
-    }
-}
-
-
-export async function shareCourseAction(fromUserId: string, toUsername: string, courseId: string) {
-    try {
-        const fromUserProfile = await getUserProfile(fromUserId);
-        if (!fromUserProfile) {
-            return { success: false, message: "Could not find your profile to share." };
-        }
-        return await shareCourseWithUserInDb(fromUserProfile, toUsername, courseId);
+        return await shareCourseWithUserInDb(fromUserId, toUserId, courseId);
     } catch (error) {
         console.error("Error in shareCourseAction:", error);
         return { success: false, message: error instanceof Error ? error.message : "An unknown server error occurred." };
