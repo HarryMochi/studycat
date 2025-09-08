@@ -4,8 +4,8 @@ import { Toaster } from "@/components/ui/toaster"
 import { AuthProvider } from '@/hooks/use-auth';
 
 export const metadata: Metadata = {
-  title: 'StudyCat: Your AI Guide to Mastering Any Subject',
-  description: 'Generate personalized, step-by-step learning paths with an AI-powered course tailored just for you.',
+  title: 'StudyCat | AI-Powered Learning for Any Subject',
+  description: 'Unleash your potential with StudyCat. Instantly generate an AI-powered course and a personalized learning path to master any subject, from coding to history.',
   
 };
 
