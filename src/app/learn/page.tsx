@@ -35,13 +35,17 @@ export default function LearnPage() {
 
   useEffect(() => {
     setIsClient(true);
-    if (!loading && !user) {
-      router.push('/login');
+    if (!loading) {
+        if (!user) {
+            router.push('/login');
+        } else if (!user.emailVerified) {
+            router.push('/verify-email');
+        }
     }
   }, [user, loading, router]);
   
   const fetchCourses = useCallback(async () => {
-    if (user) {
+    if (user && user.emailVerified) {
       const userCourses = await getCoursesForUser(user.uid);
       setCourses(userCourses);
     }
@@ -220,7 +224,7 @@ export default function LearnPage() {
     setIsSheetOpen(false);
   }
 
-  if (loading || !isClient) {
+  if (loading || !isClient || !user || !user.emailVerified) {
     return (
       <MainLayout>
         <div className="flex items-center justify-center h-screen">
@@ -229,8 +233,6 @@ export default function LearnPage() {
       </MainLayout>
     );
   }
-  
-  if (!user) return null;
 
   const sidebarContent = (
     <HistorySidebar

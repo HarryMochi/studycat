@@ -48,7 +48,7 @@ export default function SignupPage() {
     setIsLoading(true);
     try {
       await signup(values.email, values.password);
-      router.push('/learn');
+      router.push('/verify-email');
     } catch (error) {
       console.error(error);
       toast({

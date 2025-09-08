@@ -2,7 +2,7 @@
 "use client";
 
 import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
-import { onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, User, GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
+import { onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, User, GoogleAuthProvider, signInWithPopup, sendEmailVerification } from 'firebase/auth';
 import { auth } from '@/lib/firebase';
 import { usePathname, useRouter } from 'next/navigation';
 
@@ -13,6 +13,7 @@ interface AuthContextType {
   login: (email: string, password: string) => Promise<any>;
   loginWithGoogle: () => Promise<any>;
   logout: () => Promise<any>;
+  sendVerificationEmail: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -32,13 +33,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   useEffect(() => {
-    if (!loading && user && (pathname === '/login' || pathname === '/signup' || pathname === '/')) {
+    if (!loading && user && user.emailVerified && (pathname === '/login' || pathname === '/signup' || pathname === '/' || pathname === '/verify-email')) {
         router.push('/learn');
     }
   }, [user, loading, pathname, router]);
 
-  const signup = (email: string, password: string) => {
-    return createUserWithEmailAndPassword(auth, email, password);
+  const signup = async (email: string, password: string) => {
+    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+    if (userCredential.user) {
+        await sendEmailVerification(userCredential.user);
+    }
+    return userCredential;
   };
 
   const login = (email: string, password: string) => {
@@ -57,6 +62,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     });
   };
 
+  const sendVerificationEmail = async () => {
+    if (auth.currentUser) {
+        return sendEmailVerification(auth.currentUser);
+    }
+    throw new Error("No user is currently signed in.");
+  }
+
   const value = {
     user,
     loading,
@@ -64,6 +76,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     login,
     loginWithGoogle,
     logout,
+    sendVerificationEmail,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

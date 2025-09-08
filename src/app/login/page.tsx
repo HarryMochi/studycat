@@ -31,7 +31,7 @@ const formSchema = z.object({
 
 export default function LoginPage() {
   const router = useRouter();
-  const { login, loginWithGoogle } = useAuth();
+  const { login, loginWithGoogle, user } = useAuth();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = React.useState(false);
   const [isGoogleLoading, setIsGoogleLoading] = React.useState(false);
@@ -47,8 +47,17 @@ export default function LoginPage() {
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsLoading(true);
     try {
-      await login(values.email, values.password);
-      router.push('/learn');
+      const userCredential = await login(values.email, values.password);
+      if (userCredential.user && !userCredential.user.emailVerified) {
+        router.push('/verify-email');
+        toast({
+            variant: "destructive",
+            title: "Verification Required",
+            description: "Please verify your email before logging in.",
+        });
+      } else {
+        router.push('/learn');
+      }
     } catch (error) {
       console.error(error);
       toast({
