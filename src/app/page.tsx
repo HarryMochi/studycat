@@ -62,7 +62,7 @@ export default function LandingPage() {
                 </div>
                 <div className="mb-8">
                     <p className="text-lg md:text-xl text-muted-foreground max-w-3xl">
-                    StudyCat uses AI to create personalized learning courses on any topic. Go from beginner to expert with a structured, easy-to-follow plan.
+                    Ashen uses AI to create personalized learning courses on any topic. Go from beginner to expert with a structured, easy-to-follow plan.
                     </p>
                 </div>
                 <div className="flex gap-4 justify-center">
