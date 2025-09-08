@@ -69,7 +69,7 @@ export default function VerifyEmailPage() {
                     </div>
                     <CardTitle className="text-2xl font-headline">Verify Your Email</CardTitle>
                     <CardDescription>
-                        We've sent a verification link to <strong>{user.email}</strong>. Please check your inbox and click the link to finish setting up your account.
+                        We've sent a verification link to <strong>{user.email}</strong>. Please check your inbox and click the link to finish setting up your account. If you can't find the email, you might want to check your spam folder.
                     </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
