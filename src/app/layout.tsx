@@ -6,6 +6,10 @@ import { AuthProvider } from '@/hooks/use-auth';
 export const metadata: Metadata = {
   title: 'StudyCat | AI-Powered Learning for Any Subject',
   description: 'Unleash your potential with StudyCat. Instantly generate an AI-powered course and a personalized learning path to master any subject, from coding to history.',
+  icons: {
+    icon: '/cat.png',
+  }
+
 };
 
 export default function RootLayout({
