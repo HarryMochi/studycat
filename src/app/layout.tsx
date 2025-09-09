@@ -5,8 +5,38 @@ import { Toaster } from "@/components/ui/toaster";
 import { AuthProvider } from '@/hooks/use-auth';
 
 export const metadata: Metadata = {
-  title: 'StudyCat: Your AI guide to learning any topic',
+  metadataBase: new URL('https://studycat.tech'),
+  title: {
+    default: 'StudyCat: Your Curious AI Guide to Mastering Any Subject',
+    template: `%s | StudyCat`,
+  },
   description: 'Pounce on any topic with StudyCat! Generate personalized, step-by-step learning paths with an AI-powered course tailored just for you.',
+  icons: {
+    icon: '/favicon.ico',
+    shortcut: '/favicon.ico',
+    apple: '/apple-touch-icon.png',
+  },
+  openGraph: {
+    title: 'StudyCat: AI-Powered Learning Paths',
+    description: 'Instantly generate courses on any topic and learn at your own pace.',
+    url: 'https://studycat.tech',
+    siteName: 'StudyCat',
+    images: [
+      {
+        url: 'https://studycat.tech/og-image.png', // It's a good practice to create a social sharing image
+        width: 1200,
+        height: 630,
+      },
+    ],
+    locale: 'en_US',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'StudyCat: AI-Powered Learning Paths',
+    description: 'Instantly generate courses on any topic and learn at your own pace.',
+    images: ['https://studycat.tech/og-image.png'],
+  },
 };
 
 export default function RootLayout({
