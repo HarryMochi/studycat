@@ -18,9 +18,8 @@ export default function RootLayout({
       <head>
         {/* Favicon */}
         <link rel="icon" href="/favicon.ico" sizes="any" />
-        <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-        <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
-        
+        <link rel="icon" type="image/svg+xml" href="/favicon.ico" />
+      
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link
