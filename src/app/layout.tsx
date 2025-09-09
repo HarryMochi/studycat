@@ -1,15 +1,12 @@
+
 import type { Metadata } from 'next';
 import './globals.css';
 import { Toaster } from "@/components/ui/toaster";
 import { AuthProvider } from '@/hooks/use-auth';
 
 export const metadata: Metadata = {
-  title: 'StudyCat | AI-Powered Learning for Any Subject',
-  description: 'Unleash your potential with StudyCat. Instantly generate an AI-powered course and a personalized learning path to master any subject, from coding to history.',
-  icons: {
-    icon: '/cat.png',
-  }
-
+  title: 'StudyCat: Your AI guide to learning any topic',
+  description: 'Pounce on any topic with StudyCat! Generate personalized, step-by-step learning paths with an AI-powered course tailored just for you.',
 };
 
 export default function RootLayout({
@@ -20,10 +17,6 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
-        {/* Favicon */}
-        <link rel="icon" href="/favicon.ico" sizes="any" />
-        <link rel="icon" type="image/svg+xml" href="/favicon.ico" />
-      
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link
@@ -50,7 +43,7 @@ export default function RootLayout({
           `}
         </script>
       </head>
-      <body className="font-body antialiased" suppressHydrationWarning>
+      <body className="font-body antialiased">
         <AuthProvider>
           {children}
           <Toaster />
