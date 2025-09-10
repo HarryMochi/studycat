@@ -14,7 +14,7 @@ export const metadata: Metadata = {
   icons: {
     icon: '/favicon.ico',
     shortcut: '/favicon.ico',
-    apple: '/apple-touch-icon.png',
+    apple: '/cat.png',
   },
   openGraph: {
     title: 'StudyCat: AI-Powered Learning Paths',
@@ -23,7 +23,7 @@ export const metadata: Metadata = {
     siteName: 'StudyCat',
     images: [
       {
-        url: 'https://im.ge/i/cat.naKxhL', // It's a good practice to create a social sharing image
+        url: 'https://studycat.tech/link.html/', // It's a good practice to create a social sharing image
         width: 1200,
         height: 630,
       },
@@ -35,7 +35,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: 'StudyCat: AI-Powered Learning Paths',
     description: 'Instantly generate courses on any topic and learn at your own pace.',
-    images: ['https://im.ge/i/cat.naKxhL'],
+    images: ['https://studycat.tech/link.html/'],
   },
 };
 
