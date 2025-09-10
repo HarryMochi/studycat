@@ -35,7 +35,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: 'StudyCat: AI-Powered Learning Paths',
     description: 'Instantly generate courses on any topic and learn at your own pace.',
-    images: ['https://studycat.tech/og-image.png'],
+    images: ['https://im.ge/i/cat.naKxhL'],
   },
 };
 
