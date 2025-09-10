@@ -23,7 +23,7 @@ export const metadata: Metadata = {
     siteName: 'StudyCat',
     images: [
       {
-        url: 'https://studycat.tech/og-image.png', // It's a good practice to create a social sharing image
+        url: 'https://im.ge/i/cat.naKxhL', // It's a good practice to create a social sharing image
         width: 1200,
         height: 630,
       },
