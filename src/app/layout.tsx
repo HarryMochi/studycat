@@ -1,4 +1,3 @@
-
 import type { Metadata } from 'next';
 import './globals.css';
 import { Toaster } from "@/components/ui/toaster";
@@ -23,7 +22,7 @@ export const metadata: Metadata = {
     siteName: 'StudyCat',
     images: [
       {
-        url: 'https://studycat.tech/link.html/', // It's a good practice to create a social sharing image
+        url: 'https://studycat.tech/link.html/', 
         width: 1200,
         height: 630,
       },
@@ -71,6 +70,14 @@ export default function RootLayout({
             gtag('js', new Date());
             gtag('config', 'G-HP0G6MC9Q9');
           `}
+        </script>
+        <script type="text/javascript" src="https://cdn.weglot.com/weglot.min.js"></script>
+        <script>
+            {`
+                Weglot.initialize({
+                    api_key: 'wg_eb9a5ecb18cbb8e0abb47ebe5c7194a98'
+                });
+            `}
         </script>
       </head>
       <body className="font-body antialiased">
