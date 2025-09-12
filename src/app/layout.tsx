@@ -71,14 +71,7 @@ export default function RootLayout({
             gtag('config', 'G-HP0G6MC9Q9');
           `}
         </script>
-        <script type="text/javascript" src="https://cdn.weglot.com/weglot.min.js"></script>
-        <script>
-            {`
-                Weglot.initialize({
-                    api_key: 'wg_eb9a5ecb18cbb8e0abb47ebe5c7194a98'
-                });
-            `}
-        </script>
+       
       </head>
       <body className="font-body antialiased">
         <AuthProvider>
