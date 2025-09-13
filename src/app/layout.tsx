@@ -22,15 +22,15 @@ export const metadata: Metadata = {
     images: [
       {
         url: 'https://studycat.tech/cat.png', 
-        width: 16,
-        height: 16,
+        width: 100,
+        height: 100,
       },
     ],
     locale: 'en_US',
     type: 'website',
   },
   twitter: {
-    card: 'summary_large_image',
+    card: 'summary',
     title: 'StudyCat: AI-Powered Learning Paths',
     description: 'Instantly generate courses on any topic and learn at your own pace.',
     images: ['https://studycat.tech/cat.png'],
@@ -70,7 +70,7 @@ export default function RootLayout({
             gtag('config', 'G-HP0G6MC9Q9');
           `}
         </script>
-       
+        
       </head>
       <body className="font-body antialiased">
         <AuthProvider>
