@@ -1,10 +1,9 @@
-
 'use client';
 
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import Logo from '@/components/logo';
-import { BookOpenCheck, Zap, Bot, ArrowRight } from 'lucide-react';
+import { BookOpenCheck, Hash, MessageCircle, Mail, Zap, Bot, ArrowRight, Facebook, Twitter, Instagram, Linkedin, Youtube } from 'lucide-react';
 import { useAuth } from '@/hooks/use-auth';
 import MainLayout from '@/components/main-layout';
 import TypingEffect from '@/components/typing-effect';
@@ -115,11 +114,46 @@ export default function LandingPage() {
         <footer className="bg-footer-background text-foreground relative z-10">
             <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-                    <div className="col-span-1 md:col-span-2">
+                    <div className="col-span-1 md:col-span-1">
                         <Logo />
                         <p className="mt-4 text-muted-foreground max-w-xs">
                             Your AI guide to mastering any subject. Create personalized learning paths on any topic.
                         </p>
+                    </div>
+                    <div>
+                        <h4 className="font-semibold font-headline">Contact Us</h4>
+                        <ul className="mt-4 space-y-2">
+                            <li className="relative group">
+                                <div className="flex items-center text-muted-foreground hover:text-primary transition-colors cursor-pointer">
+                                    <Mail className="h-4 w-4 mr-2" />
+                                    Email
+                                </div>
+                                <div className="absolute left-0 top-full mt-2 px-3 py-2 bg-gradient-to-r from-gray-900 to-gray-800 text-white text-sm rounded-lg shadow-lg opacity-0 group-hover:opacity-100 transform translate-y-2 group-hover:translate-y-0 transition-all duration-300 pointer-events-none whitespace-nowrap z-10 backdrop-blur-sm">
+                                    <div className="font-medium">Email: minhdavid.truong@gmail.com</div>
+                                    <div className="absolute -top-1 left-4 w-2 h-2 bg-gray-900 transform rotate-45"></div>
+                                </div>
+                            </li>
+                            <li className="relative group">
+                                <div className="flex items-center text-muted-foreground hover:text-primary transition-colors cursor-pointer">
+                                    <MessageCircle className="h-4 w-4 mr-2" />
+                                    WhatsApp
+                                </div>
+                                <div className="absolute left-0 top-full mt-2 px-3 py-2 bg-gradient-to-r from-gray-900 to-gray-800 text-white text-sm rounded-lg shadow-lg opacity-0 group-hover:opacity-100 transform translate-y-2 group-hover:translate-y-0 transition-all duration-300 pointer-events-none whitespace-nowrap z-10 backdrop-blur-sm">
+                                    <div className="font-medium">WhatsApp: +41782271669</div>
+                                    <div className="absolute -top-1 left-4 w-2 h-2 bg-gray-900 transform rotate-45"></div>
+                                </div>
+                            </li>
+                            <li className="relative group">
+                                <div className="flex items-center text-muted-foreground hover:text-primary transition-colors cursor-pointer">
+                                    <Hash className="h-4 w-4 mr-2" />
+                                    Discord
+                                </div>
+                                <div className="absolute left-0 top-full mt-2 px-3 py-2 bg-gradient-to-r from-gray-900 to-gray-800 text-white text-sm rounded-lg shadow-lg opacity-0 group-hover:opacity-100 transform translate-y-2 group-hover:translate-y-0 transition-all duration-300 pointer-events-none whitespace-nowrap z-10 backdrop-blur-sm">
+                                    <div className="font-medium">Discord: na.dez</div>
+                                    <div className="absolute -top-1 left-4 w-2 h-2 bg-gray-900 transform rotate-45"></div>
+                                </div>
+                            </li>
+                        </ul>
                     </div>
                     <div>
                         <h4 className="font-semibold font-headline">Navigation</h4>
