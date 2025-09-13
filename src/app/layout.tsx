@@ -23,8 +23,8 @@ export const metadata: Metadata = {
     images: [
       {
         url: 'https://studycat.tech/cat.png', 
-        width: 64,
-        height: 64,
+        width: 100,
+        height: 100,
       },
     ],
     locale: 'en_US',
