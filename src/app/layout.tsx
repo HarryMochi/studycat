@@ -18,12 +18,12 @@ export const metadata: Metadata = {
   openGraph: {
     title: 'StudyCat: AI-Powered Learning Paths',
     description: 'Instantly generate courses on any topic and learn at your own pace.',
-    url: 'https://studycat.tech',
+    url: 'https://studycat.tech/',
     siteName: 'StudyCat',
     images: [
       {
         url: 'https://studycat.tech/link.html/', 
-        width: 1200,
+        width: 630,
         height: 630,
       },
     ],
