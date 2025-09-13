@@ -22,9 +22,9 @@ export const metadata: Metadata = {
     siteName: 'StudyCat',
     images: [
       {
-        url: 'https://studycat.tech/link.html/', 
-        width: 40,
-        height: 40,
+        url: 'https://studycat.tech/cat.png', 
+        width: 500,
+        height: 500,
       },
     ],
     locale: 'en_US',
