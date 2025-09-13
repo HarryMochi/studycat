@@ -16,10 +16,9 @@ export const metadata: Metadata = {
     apple: '/cat.png',
   },
   openGraph: {
-    title: 'StudyCat: AI-Powered Learning Paths',
+    title: 'StudyCat',
     description: 'Instantly generate courses on any topic and learn at your own pace.',
     url: 'https://studycat.tech/',
-    siteName: 'StudyCat',
     images: [
       {
         url: 'https://studycat.tech/cat.png', 
