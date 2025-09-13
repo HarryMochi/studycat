@@ -6,13 +6,13 @@ import { AuthProvider } from '@/hooks/use-auth';
 export const metadata: Metadata = {
   metadataBase: new URL('https://studycat.tech'),
   title: {
-    default: 'StudyCat: Your Curious AI Guide to Mastering Any Subject',
+    default: 'StudyCat: Your AI Guide to Learning Any Subject',
     template: `%s | StudyCat`,
   },
   description: 'Pounce on any topic with StudyCat! Generate personalized, step-by-step learning paths with an AI-powered course tailored just for you.',
   icons: {
-    icon: '/favicon.ico',
-    shortcut: '/favicon.ico',
+    icon: '/cat.png',
+    shortcut: '/cat.png',
     apple: '/cat.png',
   },
   openGraph: {
