@@ -14,6 +14,9 @@ import {z} from 'genkit';
 const GenerateFullCourseInputSchema = z.object({
   topic: z.string().describe('The topic of the course.'),
   depth: z.enum(['15', '30']).describe('The depth of the course (15 for overview, 30 for deep dive).'),
+  knowledgeLevel: z.enum(['beginner', 'intermediate', 'advanced']).describe('The user\'s current knowledge level of the topic.'),
+  masteryGoal: z.enum(['basic', 'proficient', 'expert']).describe('How well the user wants to master the topic.'),
+  difficulty: z.enum(['easy', 'medium', 'hard']).describe('The desired difficulty level of the course.'),
 });
 export type GenerateFullCourseInput = z.infer<typeof GenerateFullCourseInputSchema>;
 
@@ -58,6 +61,23 @@ const prompt = ai.definePrompt({
 
     The second MOST IMPORTANT requirement is the QUALITY of the content for each step. Each step's content must be substantial, thorough, and comprehensive, like a mini-lesson. It is absolutely forbidden to generate short, one-sentence, or empty content for any step.
 
+    PERSONALIZATION REQUIREMENTS:
+    - User's Knowledge Level: {{{knowledgeLevel}}} - Adjust the starting complexity and explanations accordingly
+    - Mastery Goal: {{{masteryGoal}}} - Tailor the depth and practical applications to match their learning objective
+    - Difficulty Preference: {{{difficulty}}} - Control the complexity of examples, terminology, and concepts used
+
+    Based on these preferences:
+    - For beginners: Start with fundamentals, use simple language, include more background context
+    - For intermediate: Build on assumed knowledge, use moderate technical terms, focus on practical applications
+    - For advanced: Use technical language, assume prior knowledge, focus on advanced concepts and edge cases
+    
+    - For basic mastery: Focus on core concepts and basic applications
+    - For proficient mastery: Include practical examples, common use cases, and problem-solving
+    - For expert mastery: Cover advanced topics, best practices, optimization, and real-world complexities
+    
+    - For easy difficulty: Use simple examples, clear explanations, step-by-step guidance
+    - For medium difficulty: Balance theory and practice, moderate complexity
+    - For hard difficulty: Complex examples, advanced concepts, challenging exercises
     For each and every step, you must generate:
     1.  A step number.
     2.  A clear and concise title.

@@ -20,7 +20,9 @@ import MobileHeader from '@/components/mobile-header';
 
 
 export type GenerationState = {
-    status: 'idle' | 'generating' | 'done';
+    status: 'idle' | 'questions' | 'generating' | 'done';
+    progress?: number;
+    currentStep?: string;
 };
 
 export default function LearnPage() {
@@ -60,14 +62,55 @@ export default function LearnPage() {
   }, [courses, activeCourseId]);
 
   const handleGenerateCourse = async (topic: string, depth: 15 | 30) => {
+    setGenerationState({ status: 'questions' });
+  };
+
+  const handleStartGeneration = async (
+    topic: string, 
+    depth: 15 | 30, 
+    knowledgeLevel: 'beginner' | 'intermediate' | 'advanced',
+    masteryGoal: 'basic' | 'proficient' | 'expert',
+    difficulty: 'easy' | 'medium' | 'hard'
+  ) => {
     if (!user) {
         toast({ variant: "destructive", title: "Authentication Error", description: "You must be logged in to create a course." });
         return;
     }
     
-    setGenerationState({ status: 'generating' });
+    setGenerationState({ status: 'generating', progress: 0, currentStep: 'Analyzing your preferences...' });
+    
+    // Simulate progress updates
+    const progressInterval = setInterval(() => {
+      setGenerationState(prev => {
+        if (prev.status !== 'generating') return prev;
+        const newProgress = Math.min((prev.progress || 0) + Math.random() * 15, 95);
+        const steps = [
+          'Analyzing your preferences...',
+          'Structuring the course outline...',
+          'Generating step-by-step content...',
+          'Adding quizzes and fun facts...',
+          'Finding relevant resources...',
+          'Finalizing your personalized course...'
+        ];
+        const stepIndex = Math.floor(newProgress / 16);
+        return {
+          ...prev,
+          progress: newProgress,
+          currentStep: steps[stepIndex] || steps[steps.length - 1]
+        };
+      });
+    }, 800);
+
     try {
-      const result = await generateCourseAction({ topic, depth: depth.toString() as '15' | '30' });
+      const result = await generateCourseAction({ 
+        topic, 
+        depth: depth.toString() as '15' | '30',
+        knowledgeLevel,
+        masteryGoal,
+        difficulty
+      });
+      
+      clearInterval(progressInterval);
       
       const steps: Step[] = result.course.map(step => {
         const newStep: Step = {
@@ -109,9 +152,10 @@ export default function LearnPage() {
 
       setCourses(prev => [newCourse, ...prev]);
       setActiveCourseId(newCourse.id);
-      setGenerationState({ status: 'done' });
+      setGenerationState({ status: 'done', progress: 100, currentStep: 'Course ready!' });
 
     } catch (error) {
+      clearInterval(progressInterval);
       console.error(error);
       toast({
         variant: "destructive",
@@ -274,6 +318,7 @@ export default function LearnPage() {
             <div className="h-full flex items-center justify-center p-4 md:p-8">
               <TopicSelection
                   onGenerateCourse={handleGenerateCourse}
+                  onStartGeneration={handleStartGeneration}
                   generationState={generationState}
               />
             </div>
